@@ -509,7 +509,7 @@ class Html2Pdf
         $html = $this->parsingHtml->prepareHtml($html);
         $html = $this->parsingCss->extractStyle($html);
         $this->parsingHtml->parse($this->lexer->tokenize($html));
-        $this->_makeHTMLcode();
+        $this->compile($this->parsingHtml->root);
 
         return $this;
     }
@@ -1255,16 +1255,6 @@ class Html2Pdf
             $this->currentNode = $parent;
             $this->_executeAction($parent, true);
         }
-    }
-
-    /**
-     * execute the actions to convert the html
-     *
-     * @access protected
-     */
-    protected function _makeHTMLcode()
-    {
-        $this->compile($this->parsingHtml->root);
     }
 
     /**
@@ -2942,7 +2932,7 @@ class Html2Pdf
         // we create a sub HTML2PFDF, and we execute on it the content of the footer, to get the height of it
         $sub = $this->createSubHTML();
         $sub->parsingHtml->root = new Node('root', array(), $this->currentNode->getChildren());
-        $sub->_makeHTMLcode();
+        $sub->compile($sub->parsingHtml->root);
         $this->pdf->setY($this->pdf->getH() - $sub->_maxY - $this->_defaultBottom - 0.01);
         $this->_destroySubHTML($sub);
 
@@ -3004,7 +2994,7 @@ class Html2Pdf
         // create a sub Html2Pdf to execute the content of the tag, to get the dimensions
         $sub = $this->createSubHTML();
         $sub->parsingHtml->root = New Node('root', array(), $this->currentNode->getChildren());
-        $sub->_makeHTMLcode();
+        $sub->compile($sub->parsingHtml->root);
         $y = $this->pdf->getY();
 
         // if the content does not fit on the page => new page
@@ -3090,7 +3080,7 @@ class Html2Pdf
 
         $sub = $this->createSubHTML();
         $sub->parsingHtml->root = new Node('root', array(), $this->currentNode->getChildren());
-        $sub->_makeHTMLcode();
+        $sub->compile($sub->parsingHtml->root);
         $w = $sub->_maxX;
         $h = $sub->_maxY;
         $this->_destroySubHTML($sub);
@@ -5448,7 +5438,7 @@ class Html2Pdf
 
             $this->_subHtml = $this->createSubHTML();
             $this->_subHtml->parsingHtml->root = new Node('root', array(), $this->currentNode->getChildren());
-            $this->_subHtml->_makeHTMLcode();
+            $this->_subHtml->compile($this->_subHtml->parsingHtml->root);
         } else {
             // new position in the table
             self::$_tables[$param['num']]['td_curr']++;
